@@ -195,6 +195,108 @@ k2.metric("💸 运动投入", f"¥{s_cost:,.0f}")
 k3.metric("🛒 装备投入", f"¥{e_cost:,.0f}")
 k4.metric("📊 综合时薪", f"¥{comp_cost:.1f}/h")
 
+# --- 📆 年度热力图 (自动填满版) ---
+st.markdown("### 📅 年度运动热力图")
+
+if not df_raw_s.empty:
+    # 1. 数据准备
+    df_year = df_raw_s[df_raw_s['年份'] == selected_year].copy()
+    
+    # 构造全年的日期网格
+    start_date = pd.Timestamp(f"{selected_year}-01-01")
+    end_date = pd.Timestamp(f"{selected_year}-12-31")
+    all_days = pd.date_range(start_date, end_date, freq='D')
+    
+    # 补全数据（无记录的日子填0）
+    daily_stats = df_year.groupby('日期')['持续时间'].sum().reindex(all_days, fill_value=0).reset_index()
+    daily_stats.columns = ['日期', '持续时间']
+    
+    # 2. 计算坐标系统 (x=周数, y=星期几)
+    # GitHub 布局：Monday=0 (最上), Sunday=6 (最下)
+    daily_stats['Weekday'] = daily_stats['日期'].dt.weekday 
+    
+    # 计算周数 (对齐到年初的第一个周一)
+    # 逻辑：(DayOfYear + StartWeekday) // 7
+    year_start_weekday = start_date.weekday()
+    daily_stats['Week'] = (daily_stats['日期'] - start_date).dt.days + year_start_weekday
+    daily_stats['Week'] = daily_stats['Week'] // 7
+    
+    # 3. 准备悬停交互文本
+    daily_stats['Text'] = daily_stats.apply(lambda x: f"<b>{x['日期'].strftime('%Y-%m-%d')}</b><br>时长: {x['持续时间']:.1f} 小时", axis=1)
+
+    # 4. 绘图 (使用 Heatmap 实现自动填充)
+    import plotly.graph_objects as go
+    
+    # 定义 GitHub 官方绿色系 (从浅到深)
+    # 0值: 灰色, 1-4级: 绿色的不同深浅
+    github_colors = [
+        [0.0, '#ebedf0'],   # 0h (灰色背景)
+        [0.0001, '#9be9a8'],# >0h (浅绿)
+        [0.2, '#9be9a8'],
+        [0.2001, '#40c463'],# 中绿
+        [0.5, '#40c463'],
+        [0.5001, '#30a14e'],# 深绿
+        [0.8, '#30a14e'],
+        [0.8001, '#216e39'],# 极深绿
+        [1.0, '#216e39']
+    ]
+
+    fig_gh = go.Figure(data=go.Heatmap(
+        z=daily_stats['持续时间'],
+        x=daily_stats['Week'],
+        y=daily_stats['Weekday'],
+        text=daily_stats['Text'],
+        hoverinfo='text',
+        colorscale=github_colors, 
+        showscale=False, # 隐藏右侧色条，保持极简
+        xgap=3, # 设置白色间距 (关键：模拟方块效果)
+        ygap=3, 
+    ))
+
+    # 5. 布局优化 (实现自动化占满)
+    fig_gh.update_layout(
+        height=180, # 固定高度，宽度自动适应容器
+        margin=dict(l=20, r=20, t=20, b=20),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(
+            showgrid=False,
+            zeroline=False,
+            showticklabels=False, # 隐藏周数索引，更干净
+            fixedrange=True,
+        ),
+        yaxis=dict(
+            showgrid=False,
+            zeroline=False,
+            showticklabels=True,
+            tickmode='array',
+            tickvals=[0, 2, 4, 6], # 只显示 Mon, Wed, Fri, Sun
+            ticktext=['Mon', 'Wed', 'Fri', 'Sun'],
+            autorange="reversed", # 翻转Y轴，让周一在最上面
+            fixedrange=True,
+        ),
+        # 关键：这里不使用 scaleanchor='x'，允许方块轻微拉伸以填满整个宽度
+        # 如果你必须要素是“正方形”，可以加上 scaleanchor='x'，但那样如果屏幕超宽就会有留白
+    )
+
+    st.plotly_chart(fig_gh, use_container_width=True, config={'displayModeBar': False})
+    
+    # 手写一个漂亮的图例
+    st.markdown("""
+    <div style="display: flex; justify-content: flex-end; align-items: center; font-size: 12px; color: #586069; margin-top: -10px;">
+        <span style="margin-right: 4px;">Less</span>
+        <span style="background-color: #ebedf0; width: 10px; height: 10px; display: inline-block; margin: 0 2px; border-radius: 2px;"></span>
+        <span style="background-color: #9be9a8; width: 10px; height: 10px; display: inline-block; margin: 0 2px; border-radius: 2px;"></span>
+        <span style="background-color: #40c463; width: 10px; height: 10px; display: inline-block; margin: 0 2px; border-radius: 2px;"></span>
+        <span style="background-color: #30a14e; width: 10px; height: 10px; display: inline-block; margin: 0 2px; border-radius: 2px;"></span>
+        <span style="background-color: #216e39; width: 10px; height: 10px; display: inline-block; margin: 0 2px; border-radius: 2px;"></span>
+        <span style="margin-left: 4px;">More</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+else:
+    st.info("💡 暂无数据，快去录入你的第一场球局吧！")
+
 # 动态 CSS 根据主题
 st.markdown(f"""
 <style>
@@ -338,3 +440,5 @@ with tab5:
     if '年份' in df_equip.columns:
         df_equip = df_equip.drop(columns=['年份'])
     st.dataframe(df_equip.style.format({'日期': '{:%Y-%m-%d}', '金额': '{:.2f}'}), use_container_width=True, hide_index=True)
+
+# ...removed separate calendar tab; heatmap moved under KPI...
