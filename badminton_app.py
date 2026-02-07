@@ -7,7 +7,7 @@ import re
 from themes import THEMES
 
 # --- 1. 页面配置与 iOS 风格 CSS ---
-st.set_page_config(page_title="🏸 竞技座舱 V4.0", layout="wide", page_icon="🏸")
+st.set_page_config(page_title="Badminton Dashboard", layout="wide", page_icon="🏸")
 
 # === 主题配置块 ===
 # THEMES = {
@@ -182,7 +182,7 @@ df_e = df_raw_e[df_raw_e['年份'] == selected_year]
 
 # KPI 说明替代横线
 st.title(f"🏆 {selected_year} · 竞技座舱")
-st.markdown("> 数据来源：侧边栏录入与历史 CSV；下方指标为全年累计概览")
+st.markdown("> 数据来源：`sessions_cleaned.csv`, `equipment_cleaned.csv`, 用于统计全年羽毛球运动的各种开销；")
 
 k1, k2, k3, k4 = st.columns(4)
 total_h = df_s['持续时间'].sum()
