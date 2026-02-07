@@ -4,45 +4,46 @@ import plotly.express as px
 import datetime
 import os
 import re
+from themes import THEMES
 
 # --- 1. 页面配置与 iOS 风格 CSS ---
 st.set_page_config(page_title="🏸 竞技座舱 V4.0", layout="wide", page_icon="🏸")
 
 # === 主题配置块 ===
-THEMES = {
-    '冷色·VSCode': {
-        'primary': '#1F6FEB',
-        'metricValue': '#1F6FEB',
-        'bgSoft': '#F7F8FA',
-        'borderSoft': '#E6E8EB',
-        'totalRowBg': '#E9EEF8',
-        'palette': ['#1F6FEB','#3A7BD5','#6EA8FE','#A5D8FF','#9E77ED','#62B6CB','#4C78A8']
-    },
-    '暖色·Sunrise': {
-        'primary': '#FF6B6B',
-        'metricValue': '#FF6B6B',
-        'bgSoft': '#FFF7F3',
-        'borderSoft': '#FFE3D6',
-        'totalRowBg': '#FFE9E3',
-        'palette': ['#FF6B6B','#FFA94D','#FFD43B','#FCC419','#FAB005','#FF922B','#FF8A5B']
-    },
-    '高对比·DarkPlus': {
-        'primary': '#58A6FF',
-        'metricValue': '#58A6FF',
-        'bgSoft': '#0D1117',
-        'borderSoft': '#30363D',
-        'totalRowBg': '#161B22',
-        'palette': ['#58A6FF','#8B949E','#1F6FEB','#E3B341','#D29922','#2EA043','#B62324']
-    },
-    '经典·默认': {
-        'primary': '#007AFF',
-        'metricValue': '#007AFF',
-        'bgSoft': '#F9F9F9',
-        'borderSoft': '#F0F0F0',
-        'totalRowBg': '#F0F4FF',
-        'palette': ['#007AFF','#5AC8FA','#5856D6','#FF9500','#FF2D55','#34C759','#AF52DE']
-    }
-}
+# THEMES = {
+#     '冷色·VSCode': {
+#         'primary': '#1F6FEB',
+#         'metricValue': '#1F6FEB',
+#         'bgSoft': '#F7F8FA',
+#         'borderSoft': '#E6E8EB',
+#         'totalRowBg': '#E9EEF8',
+#         'palette': ['#1F6FEB','#3A7BD5','#6EA8FE','#A5D8FF','#9E77ED','#62B6CB','#4C78A8']
+#     },
+#     '暖色·Sunrise': {
+#         'primary': '#FF6B6B',
+#         'metricValue': '#FF6B6B',
+#         'bgSoft': '#FFF7F3',
+#         'borderSoft': '#FFE3D6',
+#         'totalRowBg': '#FFE9E3',
+#         'palette': ['#FF6B6B','#FFA94D','#FFD43B','#FCC419','#FAB005','#FF922B','#FF8A5B']
+#     },
+#     '高对比·DarkPlus': {
+#         'primary': '#58A6FF',
+#         'metricValue': '#58A6FF',
+#         'bgSoft': '#0D1117',
+#         'borderSoft': '#30363D',
+#         'totalRowBg': '#161B22',
+#         'palette': ['#58A6FF','#8B949E','#1F6FEB','#E3B341','#D29922','#2EA043','#B62324']
+#     },
+#     '经典·默认': {
+#         'primary': '#007AFF',
+#         'metricValue': '#007AFF',
+#         'bgSoft': '#F9F9F9',
+#         'borderSoft': '#F0F0F0',
+#         'totalRowBg': '#F0F4FF',
+#         'palette': ['#007AFF','#5AC8FA','#5856D6','#FF9500','#FF2D55','#34C759','#AF52DE']
+#     }
+# }
 
 st.markdown("""
 <style>
@@ -194,7 +195,7 @@ k2.metric("💸 运动投入", f"¥{s_cost:,.0f}")
 k3.metric("🛒 装备投入", f"¥{e_cost:,.0f}")
 k4.metric("📊 综合时薪", f"¥{comp_cost:.1f}/h")
 
-# 根据主题动态覆盖部分 CSS（按钮/Metric/侧边栏等）
+# 动态 CSS 根据主题
 st.markdown(f"""
 <style>
     div[data-testid=\"stMetric\"] {{ background-color: #FFFFFF; border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid {theme['borderSoft']}; }}
@@ -224,6 +225,8 @@ with tab1:
     
     with p1:
         fig1 = px.pie(type_stats, values='金额', names='类型', hole=0.6, title="💰 运动支出占比", color_discrete_sequence=theme['palette'])
+        fig1.update_traces(marker=dict(line=dict(color='white', width=2)))
+        fig1.update_layout(legend=dict(font=dict(size=13)))
         st.plotly_chart(fig1, use_container_width=True)
         s_total = pd.DataFrame({'类型': ['合计'], '金额': [type_stats['金额'].sum()]})
         table1 = pd.concat([type_stats[['类型','金额']], s_total], ignore_index=True).style.format({'金额': '¥{:.2f}'})
@@ -231,6 +234,8 @@ with tab1:
         st.dataframe(table1, use_container_width=True, hide_index=True)
     with p2:
         fig2 = px.pie(type_stats, values='持续时间', names='类型', hole=0.6, title="⏳ 运动时长占比", color_discrete_sequence=theme['palette'])
+        fig2.update_traces(marker=dict(line=dict(color='white', width=2)))
+        fig2.update_layout(legend=dict(font=dict(size=13)))
         st.plotly_chart(fig2, use_container_width=True)
         h_total = pd.DataFrame({'类型': ['合计'], '持续时间': [type_stats['持续时间'].sum()]})
         table2 = pd.concat([type_stats[['类型','持续时间']], h_total], ignore_index=True).style.format({'持续时间': '{:.1f} H'})
@@ -238,6 +243,8 @@ with tab1:
         st.dataframe(table2, use_container_width=True, hide_index=True)
     with p3:
         fig3 = px.pie(equip_stats, values='金额', names='类型', hole=0.6, title="🎒 装备支出占比", color_discrete_sequence=theme['palette'])
+        fig3.update_traces(marker=dict(line=dict(color='white', width=2)))
+        fig3.update_layout(legend=dict(font=dict(size=13)))
         st.plotly_chart(fig3, use_container_width=True)
         e_total = pd.DataFrame({'类型': ['合计'], '金额': [equip_stats['金额'].sum()]})
         table3 = pd.concat([equip_stats[['类型','金额']], e_total], ignore_index=True).style.format({'金额': '¥{:.2f}'})
@@ -248,10 +255,12 @@ with tab1:
 with tab2:
     w_stats = df_s.groupby(['周数', '类型']).agg({'持续时间': 'sum', '金额': 'sum'}).reset_index()
     fig_time = px.bar(w_stats, x='周数', y='持续时间', color='类型', barmode='stack', title="⚡ 周强度负荷 (Hour)", color_discrete_sequence=theme['palette'])
-    fig_time.update_layout(plot_bgcolor="rgba(0,0,0,0)", xaxis=dict(showgrid=False), yaxis=dict(showgrid=True, gridcolor=theme['borderSoft']))
+    fig_time.update_traces(marker=dict(line=dict(color='white', width=1)))
+    fig_time.update_layout(plot_bgcolor="rgba(0,0,0,0)", xaxis=dict(showgrid=False), yaxis=dict(showgrid=True, gridcolor=theme['borderSoft']), legend=dict(font=dict(size=13)))
     st.plotly_chart(fig_time, use_container_width=True)
     fig_cost = px.bar(w_stats, x='周数', y='金额', color='类型', barmode='stack', title="💸 周金额开销 (RMB)", color_discrete_sequence=theme['palette'])
-    fig_cost.update_layout(plot_bgcolor="rgba(0,0,0,0)", xaxis=dict(showgrid=False), yaxis=dict(showgrid=True, gridcolor=theme['borderSoft']))
+    fig_cost.update_traces(marker=dict(line=dict(color='white', width=1)))
+    fig_cost.update_layout(plot_bgcolor="rgba(0,0,0,0)", xaxis=dict(showgrid=False), yaxis=dict(showgrid=True, gridcolor=theme['borderSoft']), legend=dict(font=dict(size=13)))
     st.plotly_chart(fig_cost, use_container_width=True)
 
 with tab3:
