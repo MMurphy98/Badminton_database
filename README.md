@@ -5,11 +5,12 @@
 ## ✨ 功能特性
 
 *   **🏆 竞技座舱 (Dashboard)**: 仿 iOS 风格的 UI 设计，直观展示年度打球时长、资金投入及综合时薪成本。
+*   **heatmap 运动热力图**: 类似 GitHub 贡献图的年度可视化组件。
 *   **📊 多维可视化**:
     *   通过饼图分析单打、双打、练球的资金与时间占比。
     *   通过堆叠柱状图展示每周的运动强度与开销趋势。
-*   **📝 快捷录入**: 侧边栏集成了双模录入功能，支持快速记录「打球活动」或「新购装备」，数据直接存入 CSV 文件。
 *   **🧬 装备透视**: 专门的球线/球拍适配分析面板，帮助分析哪款球线在使用中最易断线，以及球拍的换线频率。
+*   **📝 快捷录入**: 侧边栏集成了双模录入功能，支持快速记录「打球活动」或「新购装备」，数据直接存入 CSV 文件。
 
 ## 📂 文件结构说明
 
@@ -17,59 +18,53 @@
 
 | 文件/目录 | 说明 |
 | :--- | :--- |
-| `badminton_app.py` | **主程序入口**。负责组装各模块并启动 Streamlit 应用。 |
-| `modules/` | **核心主要模块**。包含应用的具体逻辑实现：<br>• `data_loader.py`: 数据加载、缓存与 CSV 写入逻辑<br>• `sidebar.py`: 侧边栏控制中心与数据录入表单<br>• `tabs.py`: 核心功能标签页（统计、趋势、装备等）的渲染逻辑<br>• `kpi.py`: 顶部 KPI 核心指标卡片<br>• `heatmap.py`: 年度运动热力图组件<br>• `styles.py`: 全局 CSS 注入与样式工具 |
-| `themes.py` | **主题配置文件**。定义了应用的多套配色方案（如 Nerd, GitHub, Dracula 等）。 |
-| `sessions_cleaned.csv` | **活动数据库**。存储所有的打球记录（日期、类型、费用、时长等）。 |
-| `equipment_cleaned.csv` | **装备数据库**。存储所有的装备购买记录（球拍、球线、球鞋等）。 |
-| `export_raw_data.ipynb` | **数据转换工具**。用于将原始 Excel 记录 (`羽毛球开销记录.xlsx`) 批量导出为 CSV 的 Jupyter Notebook。 |
+| `badminton_app.py` | **开发入口**。主程序入口文件。 |
+| `modules/` | **核心代码库**。包含UI组件、数据处理、图表绘制逻辑。 |
+| `themes.py` | **主题配置**。定义了多套配色方案。 |
+| `sessions_cleaned.csv` | **活动数据库**。打球记录存储文件。 |
+| `equipment_cleaned.csv` | **装备数据库**。装备购买记录存储文件。 |
+| `StartDashBoard.vbs` | **桌面启动器**。Windows 下无窗口静默启动脚本（推荐）。 |
+| `DashBoard.bat` | **批处理启动**。用于拉起环境的脚本。 |
+| `run_app.py` | **打包入口**。用于 PyInstaller 打包 exe 的引导脚本。 |
 
-## 🚀 快速开始
+## 🚀 启动方式
 
-### 1. 环境准备
+你可以根据场景选择以下任意一种方式运行：
 
-确保你的 Python 环境中安装了以下依赖库：
+### 1. Windows 桌面模式 (推荐) 🖱️
 
-```bash
-pip install streamlit pandas plotly openpyxl
-```
+这是最常用的日常使用方式，双击即可无窗口后台启动服务。
 
-### 2. 启动应用
+*   双击根目录下的 **`StartDashBoard.vbs`**。
+*   系统会在后台启动服务，并自动打开默认浏览器访问看板。
 
-在终端中运行以下命令启动看板：
+### 2. 开发者模式 👨‍💻
 
-```bash
-streamlit run badminton_app.py
-```
+如果你需要修改代码或查看调试信息：
 
-启动后，浏览器会自动打开 `http://localhost:8501`。
+1.  打开终端 (Terminal)。
+2.  运行命令：
+    ```bash
+    streamlit run badminton_app.py
+    ```
+
+### 3. 可执行文件模式 (exe) 📦
+
+如果你已经使用 PyInstaller 进行了打包（基于 `run_app.spec`）：
+
+*   直接运行 `dist/BadmintonDashboard.exe`。
+*   **注意**：请确保 `.exe` 同级目录下存在 `sessions_cleaned.csv` 和 `equipment_cleaned.csv`，否则数据无法保存。
 
 ## 💾 数据管理
 
-本项目支持两种数据管理方式：
+本项目支持两种数据录入方式：
 
 1.  **APP 直接录入 (推荐)**
-    *   在网页左侧侧边栏选择年份。
-    *   选择「📝 快速录入」模式（记录打球 / 录入装备）。
-    *   填写表单并点击保存，数据会自动追加到 [`sessions_cleaned.csv`](sessions_cleaned.csv ) 或 [`equipment_cleaned.csv`](equipment_cleaned.csv )。
+    *   在网页侧边栏选择「📝 快捷录入」。
+    *   填写表单并点击保存，数据会自动写入 CSV 文件。
 
-2.  **Excel 批量导入**
-    *   如果你习惯在 Excel 中维护数据，可以使用 [`export_raw_data.ipynb`](export_raw_data.ipynb )。
-    *   该脚本会读取 [`羽毛球开销记录.xlsx`](羽毛球开销记录.xlsx ) 中的指定 Sheet，并转换为 CSV 文件（注意：脚本默认输出名为 [`sessions.csv`](sessions.csv )，需要根据需要重命名为 `_cleaned.csv` 版本以供 APP 读取）。
-
-## 📝 数据格式示例
-
-**活动记录 (sessions_cleaned.csv)**
-```csv
-年份,日期,周数,起始时间,结束时间,类型,金额,持续时间,时间段,备注
-2026,2026-02-06,6,21:00:00,22:00:00,单打,15.5,1.0,晚上,3人轮单，黑金隼 单线区断线
-```
-
-**装备记录 (equipment_cleaned.csv)**
-```csv
-日期,类型,型号,金额,说明
-2026-01-18,球线,Exbolt68,70,ZSP
-```
+2.  **Excel 导入**
+    *   使用 `export_raw_data.ipynb` 将 Excel 记录批量转换为 CSV。
 
 ## 🎨 UI 风格
 

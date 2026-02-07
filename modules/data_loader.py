@@ -1,9 +1,26 @@
 import pandas as pd
 import os
+import sys
 import streamlit as st
 
-SESSIONS_FILE = "sessions_cleaned.csv"
-EQUIPMENT_FILE = "equipment_cleaned.csv"
+# --- 新增：获取当前运行的基础路径 ---
+def get_base_path():
+    """
+    获取资源文件的基础路径。
+    如果是 exe 运行，则返回 exe 所在目录；
+    如果是脚本运行，则返回当前工作目录。
+    """
+    if getattr(sys, 'frozen', False):
+        # 如果是打包后的 exe
+        return os.path.dirname(sys.executable)
+    else:
+        # 普通 python 运行
+        return os.getcwd()
+
+BASE_DIR = get_base_path()
+SESSIONS_FILE = os.path.join(BASE_DIR, "sessions_cleaned.csv")
+EQUIPMENT_FILE = os.path.join(BASE_DIR, "equipment_cleaned.csv")
+# -----------------------------------
 
 def get_file_mtime(filepath):
     return os.path.getmtime(filepath) if os.path.exists(filepath) else 0
