@@ -13,13 +13,16 @@
 
 ## 📂 文件结构说明
 
-| 文件名 | 说明 |
+本项目采用模块化架构设计，核心代码按照功能拆分如下：
+
+| 文件/目录 | 说明 |
 | :--- | :--- |
-| `badminton_app.py` | **主程序文件**。Streamlit 应用的核心逻辑与 UI 代码。 |
+| `badminton_app.py` | **主程序入口**。负责组装各模块并启动 Streamlit 应用。 |
+| `modules/` | **核心主要模块**。包含应用的具体逻辑实现：<br>• `data_loader.py`: 数据加载、缓存与 CSV 写入逻辑<br>• `sidebar.py`: 侧边栏控制中心与数据录入表单<br>• `tabs.py`: 核心功能标签页（统计、趋势、装备等）的渲染逻辑<br>• `kpi.py`: 顶部 KPI 核心指标卡片<br>• `heatmap.py`: 年度运动热力图组件<br>• `styles.py`: 全局 CSS 注入与样式工具 |
+| `themes.py` | **主题配置文件**。定义了应用的多套配色方案（如 Nerd, GitHub, Dracula 等）。 |
 | `sessions_cleaned.csv` | **活动数据库**。存储所有的打球记录（日期、类型、费用、时长等）。 |
 | `equipment_cleaned.csv` | **装备数据库**。存储所有的装备购买记录（球拍、球线、球鞋等）。 |
 | `export_raw_data.ipynb` | **数据转换工具**。用于将原始 Excel 记录 (`羽毛球开销记录.xlsx`) 批量导出为 CSV 的 Jupyter Notebook。 |
-| `*.xlsx` | 原始 Excel 数据备份文件。 |
 
 ## 🚀 快速开始
 
