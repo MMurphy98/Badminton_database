@@ -22,6 +22,18 @@ def render_sidebar(df_raw_s):
             _render_session_form()
         else:
             _render_equipment_form()
+
+        st.divider()
+        st.caption("🚀 维护工具")
+        if st.button("🛑 关闭系统", help="点击后将杀死 Python 进程，释放内存。"):
+            st.toast("正在释放资源...")
+                # 清空主界面
+            st.balloons() 
+            # 延迟一秒给用户反馈，然后自杀
+            import time
+            time.sleep(1)
+            import os
+            os._exit(0)
             
     return selected_year, theme
 
