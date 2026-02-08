@@ -14,46 +14,45 @@
 
 ## 📂 文件结构说明
 
-本项目采用模块化架构设计，核心代码按照功能拆分如下：
+本项目采用“开发/发布”分离的架构设计，核心文件按照功能划分如下：
 
-| 文件/目录 | 说明 |
-| :--- | :--- |
-| `badminton_app.py` | **开发入口**。主程序入口文件。 |
-| `modules/` | **核心代码库**。包含UI组件、数据处理、图表绘制逻辑。 |
-| `themes.py` | **主题配置**。定义了多套配色方案。 |
-| `sessions_cleaned.csv` | **活动数据库**。打球记录存储文件。 |
-| `equipment_cleaned.csv` | **装备数据库**。装备购买记录存储文件。 |
-| `StartDashBoard.vbs` | **桌面启动器**。Windows 下无窗口静默启动脚本（推荐）。 |
-| `DashBoard.bat` | **批处理启动**。用于拉起环境的脚本。 |
-| `run_app.py` | **打包入口**。用于 PyInstaller 打包 exe 的引导脚本。 |
+| 目录/文件 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| **`dist_portable/`** | **发布包** | **用户直接使用此目录**。包含内置 Python 环境、程序代码及启动脚本，无需安装环境即可运行。 |
+| └─ `Start_Badminton_Dashboard.bat` | 启动脚本 | 双击此脚本（或根目录的快捷方式）即可启动系统。 |
+| **`dev/`** | **开发区** | **开发者维护目录**。包含核心源码，用于功能迭代。 |
+| ├─ `badminton_app.py` | 主程序 | Streamlit 应用入口。 |
+| ├─ `modules/` | 模块库 | 包含数据加载、KPI计算、图表渲染等核心逻辑。 |
+| └─ `themes.py` | 主题配置 | 定义 VS Code 风格的配色方案。 |
+| `export_raw_data.ipynb` | 工具 | 数据预处理 Notebook，用于从 Excel 导出为清洗后的 CSV。 |
+| `Start_Badminton_Dashboard.bat.lnk` | 快捷方式 | 指向 portable 目录启动脚本的快捷方式，方便在根目录启动。 |
 
 ## 🚀 启动方式
 
 你可以根据场景选择以下任意一种方式运行：
 
-### 1. Windows 桌面模式 (推荐) 🖱️
+### 1. 便携模式 (推荐 & 日常使用) 🖱️
 
-这是最常用的日常使用方式，双击即可无窗口后台启动服务。
+本项目集成了独立的 Python 运行时，**无需安装任何环境**。
 
-*   双击根目录下的 **`StartDashBoard.vbs`**。
-*   系统会在后台启动服务，并自动打开默认浏览器访问看板。
+*   **方式 A**: 直接双击根目录下的快捷方式 **`Start_Badminton_Dashboard.bat.lnk`**。
+*   **方式 B**: 进入 `dist_portable` 目录，双击 **`Start_Badminton_Dashboard.bat`**。
+
+> 系统会自动启动服务，并在默认浏览器中打开看板页面。关闭终端窗口即可停止服务。
 
 ### 2. 开发者模式 👨‍💻
 
-如果你需要修改代码或查看调试信息：
+如果你需要修改代码或调试功能：
 
-1.  打开终端 (Terminal)。
-2.  运行命令：
+1.  确保已安装 Python 3.11+ 及所需的依赖库 (参见 `dist_portable/Lib/site-packages` 或自行安装)。
+2.  进入 `dev` 目录：
+    ```bash
+    cd dev
+    ```
+3.  运行命令：
     ```bash
     streamlit run badminton_app.py
     ```
-
-### 3. 可执行文件模式 (exe) 📦
-
-如果你已经使用 PyInstaller 进行了打包（基于 `run_app.spec`）：
-
-*   直接运行 `dist/BadmintonDashboard.exe`。
-*   **注意**：请确保 `.exe` 同级目录下存在 `sessions_cleaned.csv` 和 `equipment_cleaned.csv`，否则数据无法保存。
 
 ## 💾 数据管理
 
